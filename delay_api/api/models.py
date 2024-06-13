@@ -30,7 +30,8 @@ class DelayReport(models.Model):
         DELAY_QUEUED = "DELAY_QUEUED"
         RESCHEDULED = "RESCHEDULED"
 
-    order = models.ForeignKey(Order, primary_key=True, on_delete=models.CASCADE,
+    id = models.AutoField(primary_key=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE,
                               related_name="delay_reports", related_query_name="delay_report")
     action = models.CharField(max_length=50, choices=Actions)
 
