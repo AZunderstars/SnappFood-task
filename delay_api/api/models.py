@@ -20,5 +20,5 @@ class Trip(models.Model):
         PICKED = "PICKED"
         DELIVERED = "DELIVERED"
     order = models.OneToOneField(
-        Order, on_delete=models.PROTECT, related_name="trip")
+        Order, primary_key=True, on_delete=models.CASCADE, related_name="trip")
     status = models.CharField(max_length=50, choices=Statuses)
