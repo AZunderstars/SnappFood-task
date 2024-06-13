@@ -27,7 +27,12 @@ def delay_report_announce(request: HttpRequest):
                 return HttpResponse('oh no')
         except requests.exceptions.RequestException as e:
             return HttpResponse('exception')
+        finally:
+            DelayReport.objects.create(order, "RESCHEDULED")
     else:
         con = get_redis_connection("default")
         con.lpush('delay_queue', 1)
+        DelayReport.objects.create(order, "DELAY_QUEUED")
         return HttpResponse('queued')
+    
+
