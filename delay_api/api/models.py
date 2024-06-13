@@ -33,3 +33,7 @@ class DelayReport(models.Model):
     order = models.ForeignKey(Order, primary_key=True, on_delete=models.CASCADE,
                               related_name="delay_reports", related_query_name="delay_report")
     action = models.CharField(max_length=50, choices=Actions)
+
+
+class Employee(models.Model):
+    id = models.AutoField(primary_key=True)
