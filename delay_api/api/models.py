@@ -11,3 +11,14 @@ class Order(models.Model):
         Vendor, on_delete=models.PROTECT, related_name="orders", related_query_name="order")
     register_time = models.DateTimeField(auto_now_add=True)
     delivery_time = models.PositiveIntegerField()
+
+
+class Trip(models.Model):
+    class Statuses(models.TextChoices):
+        ASSIGNED = "ASSIGNED"
+        AT_VENDOR = "AT_VENDOR"
+        PICKED = "PICKED"
+        DELIVERED = "DELIVERED"
+    order = models.OneToOneField(
+        Order, on_delete=models.PROTECT, related_name="trip")
+    status = models.CharField(max_length=50, choices=Statuses)
