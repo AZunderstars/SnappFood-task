@@ -1,6 +1,6 @@
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpResponse
 from django_redis import get_redis_connection
 from .models import *
 import json
@@ -11,7 +11,7 @@ url = "https://run.mocky.io/v3/122c2796-5df4-461c-ab75-87c1192b17f7"
 
 @csrf_exempt
 @require_POST
-def delay_report_announce(request: HttpRequest):
+def delay_report_announce(request):
     body = json.loads(request.body)
     if "id" not in body or len(body.keys()) != 1:
         return HttpResponse('bad parameters')
@@ -34,3 +34,4 @@ def delay_report_announce(request: HttpRequest):
         con.lpush('delay_queue', 1)
         DelayReport.objects.create(order=order, action="DELAY_QUEUED")
         return HttpResponse('queued')
+
