@@ -19,6 +19,17 @@ class Trip(models.Model):
         AT_VENDOR = "AT_VENDOR"
         PICKED = "PICKED"
         DELIVERED = "DELIVERED"
+
     order = models.OneToOneField(
         Order, primary_key=True, on_delete=models.CASCADE, related_name="trip")
     status = models.CharField(max_length=50, choices=Statuses)
+
+
+class DelayReport(models.Model):
+    class Actions(models.TextChoices):
+        DELAY_QUEUED = "DELAY_QUEUED"
+        RESCHEDULED = "RESCHEDULED"
+
+    order = models.ForeignKey(Order, primary_key=True, on_delete=models.CASCADE,
+                              related_name="delay_reports", related_query_name="delay_report")
+    action = models.CharField(max_length=50, choices=Actions)
