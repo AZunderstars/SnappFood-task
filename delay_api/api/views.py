@@ -1,4 +1,4 @@
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django_redis import get_redis_connection
@@ -35,3 +35,13 @@ def delay_report_announce(request):
         DelayReport.objects.create(order=order, action="DELAY_QUEUED")
         return HttpResponse('queued')
 
+
+@csrf_exempt
+@require_GET
+def get_delay_report_from_queue(request):
+    body = json.loads(request.body)
+    if len(body.keys()) != 0:
+        return HttpResponse('bad parameters')
+    con = get_redis_connection("default")
+    id = con.rpop('delay_queue')
+    return HttpResponse(id)
