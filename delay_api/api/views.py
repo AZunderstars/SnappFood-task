@@ -39,9 +39,6 @@ def delay_report_announce(request):
 @csrf_exempt
 @require_GET
 def get_delay_report_from_queue(request):
-    body = json.loads(request.body)
-    if len(body.keys()) != 0:
-        return HttpResponse('bad parameters')
     con = get_redis_connection("default")
     id = con.rpop('delay_queue')
     return HttpResponse(id)
