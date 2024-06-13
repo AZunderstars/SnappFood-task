@@ -1,6 +1,7 @@
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpRequest, HttpResponse
+from django_redis import get_redis_connection
 from .models import *
 import json
 import requests
@@ -27,4 +28,6 @@ def delay_report_announce(request: HttpRequest):
         except requests.exceptions.RequestException as e:
             return HttpResponse('exception')
     else:
-        return HttpResponse('to queue')
+        con = get_redis_connection("default")
+        con.lpush('delay_queue', 1)
+        return HttpResponse('queued')
