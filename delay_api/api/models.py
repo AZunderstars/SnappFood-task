@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime, timedelta
 
 
 class Vendor(models.Model):
@@ -12,6 +13,10 @@ class Order(models.Model):
     register_time = models.DateTimeField(auto_now_add=True)
     delivery_time = models.PositiveIntegerField()
 
+    def is_now_late_for_delivery(self):
+        now = datetime.now()
+        delivery_deadline = self.register_time + timedelta(minutes=self.delivery_time)
+        return delivery_deadline > now
 
 class Trip(models.Model):
     class Statuses(models.TextChoices):
