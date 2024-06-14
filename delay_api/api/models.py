@@ -45,4 +45,5 @@ class DelayReport(models.Model):
 
 class Employee(models.Model):
     id = models.AutoField(primary_key=True)
-    working_on = models.OneToOneField(Order, on_delete=models.PROTECT, null=True)
+    working_on = models.OneToOneField(
+        Order, on_delete=models.PROTECT, null=True, blank=True)
