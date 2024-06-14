@@ -15,13 +15,15 @@ def delay_report_announce(request):
     body = json.loads(request.body)
     if "id" not in body or len(body.keys()) != 1:
         return HttpResponse('bad parameters')
-    if (not Order.objects.filter(id=body["id"]).exists()):
+    if not Order.objects.filter(id=body["id"]).exists():
         return HttpResponse('no order')
     order = Order.objects.get(id=body["id"])
-    if (hasattr(order, "trip") and order.trip.status != "DELIVERED"):
+    if order.is_now_late_for_delivery:
+        return HttpResponse('not late')
+    if hasattr(order, "trip") and order.trip.status != "DELIVERED":
         try:
             response = requests.get(url, params=request.GET)
-            if (response.status_code == 200):
+            if response.status_code == 200:
                 return HttpResponse('Yay, it worked')
             else:
                 return HttpResponse('oh no')
