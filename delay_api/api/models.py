@@ -15,7 +15,8 @@ class Order(models.Model):
 
     def is_now_late_for_delivery(self):
         now = timezone.now()
-        delivery_deadline = self.register_time + timezone.timedelta(minutes=self.delivery_time)
+        delivery_deadline = self.register_time + \
+            timezone.timedelta(minutes=self.delivery_time)
         return delivery_deadline > now
 
 
@@ -27,7 +28,7 @@ class Trip(models.Model):
         DELIVERED = "DELIVERED"
 
     order = models.OneToOneField(
-        Order, primary_key=True, on_delete=models.CASCADE, related_name="trip")
+        Order, primary_key=True, on_delete=models.CASCADE)
     status = models.CharField(max_length=50, choices=Statuses)
 
 
@@ -44,3 +45,4 @@ class DelayReport(models.Model):
 
 class Employee(models.Model):
     id = models.AutoField(primary_key=True)
+    working_on = models.OneToOneField(Order, on_delete=models.PROTECT)
