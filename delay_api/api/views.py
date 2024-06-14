@@ -14,7 +14,7 @@ url = "https://run.mocky.io/v3/122c2796-5df4-461c-ab75-87c1192b17f7"
 @require_POST
 def delay_report_announce(request):
     body = json.loads(request.body)
-    if "id" not in body or len(body.keys()) != 1:
+    if "id" not in body:
         return HttpResponse('bad parameters')
     if not Order.objects.filter(id=body["id"]).exists():
         return HttpResponse('no order')
@@ -42,9 +42,12 @@ def delay_report_announce(request):
 @csrf_exempt
 @require_GET
 def get_delay_report_from_queue(request):
+    body = json.loads(request.body)
+    if "id" not in body:
+        return HttpResponse('bad parameters')
     con = get_redis_connection("default")
     id = con.rpop('delay_queue')
-    return HttpResponse(id)
+    return HttpResponse(id) 
 
 
 @csrf_exempt
