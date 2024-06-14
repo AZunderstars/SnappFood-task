@@ -1,7 +1,8 @@
 from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django_redis import get_redis_connection
+from django.db.models import Count
 from .models import *
 import json
 import requests
@@ -44,3 +45,12 @@ def get_delay_report_from_queue(request):
     con = get_redis_connection("default")
     id = con.rpop('delay_queue')
     return HttpResponse(id)
+
+
+@csrf_exempt
+@require_GET
+def get_vendors_delay_report(request):
+    vendors = Vendor.objects \
+        .annotate(num_delays=Count("order__delay_report"))\
+        .order_by("-num_delays")
+    return JsonResponse(list(vendors.values()), safe=False)
