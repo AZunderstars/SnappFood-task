@@ -11,18 +11,18 @@ import requests
 url = "https://run.mocky.io/v3/122c2796-5df4-461c-ab75-87c1192b17f7"
 
 
-def get_new_delay_time_from_webservice():
+def get_new_arrive_time():
     try:
         response = requests.get(url)
-        return response.json().get("new_delay_time")
+        return response.json().get("new_arrive_time")
 
     except (requests.exceptions.RequestException, requests.exceptions.JSONDecodeError):
         return timezone.localtime(timezone.now() + timezone.timedelta(minutes=15))
 
 
-def push_to_delay_queue():
+def push_to_delay_queue(order):
     con = get_redis_connection("default")
-    con.lpush('delay_queue', 1)
+    con.lpush('delay_queue', order.id)
 
 
 def has_trip_on_the_way(order):
@@ -38,13 +38,13 @@ def delay_report_announce(request):
         if order.is_now_late_for_delivery():
             return HttpResponse('not late', status=400)
         if has_trip_on_the_way(order):
-            new_delay_time = get_new_delay_time_from_webservice()
+            new_arrive_time = get_new_arrive_time()
             DelayReport.objects.create(order=order, action="RESCHEDULED")
-            return HttpResponse({"new_delay_time": new_delay_time})
+            return HttpResponse({"new_arrive_time": new_arrive_time})
         else:
-            push_to_delay_queue()
             DelayReport.objects.create(order=order, action="DELAY_QUEUED")
-            
+            push_to_delay_queue(order)
+
     except (json.decoder.JSONDecodeError, Order.DoesNotExist, KeyError):
         pass
 
