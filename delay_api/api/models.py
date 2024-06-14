@@ -17,7 +17,7 @@ class Order(models.Model):
         now = timezone.now()
         delivery_deadline = self.register_time + \
             timezone.timedelta(minutes=self.delivery_time)
-        return delivery_deadline > now
+        return delivery_deadline < now
 
 
 class Trip(models.Model):
