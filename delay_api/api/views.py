@@ -22,7 +22,7 @@ def delay_report_announce(request):
             new_arrive_time = get_new_arrive_time()
             return JsonResponse({"new_arrive_time": new_arrive_time})
         else:
-            if DelayReport.objects.filter(order__id=order.id, action="DELAY_QUEUED").exists():
+            if does_order_have_delay_report(order):
                 return HttpResponse('order is in queue', status=400)
             DelayReport.objects.create(order=order, action="DELAY_QUEUED")
             push_to_delay_queue(order.id)

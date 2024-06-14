@@ -1,26 +1,23 @@
 from django_redis import get_redis_connection
 from django.utils import timezone
 from .models import *
+from .constants import *
 import requests
 import queue
-
-new_arrive_time_service_url = "https://run.mocky.io/v3/122c2796-5df4-461c-ab75-87c1192b17f7"
-
-default_minute_latency_to_add = 15
 
 
 def get_new_arrive_time():
     try:
-        response = requests.get(new_arrive_time_service_url)
-        return response.json().get("new_arrive_time")
+        response = requests.get(NEW_ARRIVE_TIME_SERVICE_URL)
+        return response.json().get(TIME_FIELD_IN_WEB_SERVICE)
 
     except (requests.exceptions.RequestException, requests.exceptions.JSONDecodeError):
-        return timezone.localtime(timezone.now() + timezone.timedelta(minutes=default_minute_latency_to_add))
+        return timezone.localtime(timezone.now() + timezone.timedelta(minutes=DEFAULT_MINUTE_LATENCY_TO_ADD))
 
 
 def push_to_delay_queue(value):
-    con = get_redis_connection("default")
-    con.lpush('delay_queue', value)
+    con = get_redis_connection()
+    con.lpush(DELAY_QUEUE, value)
 
 
 def has_trip_on_the_way(order):
@@ -28,13 +25,13 @@ def has_trip_on_the_way(order):
 
 
 def pop_from_delay_queue():
-    con = get_redis_connection("default")
-    return con.rpop('delay_queue')
+    con = get_redis_connection()
+    return con.rpop(DELAY_QUEUE)
 
 
 def is_delay_queue_empty():
-    con = get_redis_connection("default")
-    return con.llen('delay_queue') == 0
+    con = get_redis_connection()
+    return con.llen(DELAY_QUEUE) == 0
 
 
 def get_order_from_delay_queue():
@@ -43,3 +40,7 @@ def get_order_from_delay_queue():
     order_id = pop_from_delay_queue()
     order = Order.objects.get(id=order_id)
     return order
+
+
+def does_order_have_delay_report(order):
+    return DelayReport.objects.filter(order__id=order.id, action="DELAY_QUEUED").exists()

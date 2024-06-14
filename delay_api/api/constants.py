@@ -1,0 +1,7 @@
+NEW_ARRIVE_TIME_SERVICE_URL = "https://run.mocky.io/v3/122c2796-5df4-461c-ab75-87c1192b17f7"
+
+DEFAULT_MINUTE_LATENCY_TO_ADD = 15
+
+TIME_FIELD_IN_WEB_SERVICE = "new_arrive_time"
+
+DELAY_QUEUE = "delay_queue"

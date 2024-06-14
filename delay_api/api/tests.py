@@ -39,5 +39,3 @@ class VendorsDelayReportTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response.content, json.dumps(
             [{"id": self.v1.id, "num_delays": 3}, {"id": self.v2.id, "num_delays": 1}, {"id": self.v3.id, "num_delays": 0}]))
-        
-    
