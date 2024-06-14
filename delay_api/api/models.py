@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import datetime, timedelta
+from django.utils import timezone
 
 
 class Vendor(models.Model):
@@ -14,9 +14,10 @@ class Order(models.Model):
     delivery_time = models.PositiveIntegerField()
 
     def is_now_late_for_delivery(self):
-        now = datetime.now()
-        delivery_deadline = self.register_time + timedelta(minutes=self.delivery_time)
+        now = timezone.now()
+        delivery_deadline = self.register_time + timezone.timedelta(minutes=self.delivery_time)
         return delivery_deadline > now
+
 
 class Trip(models.Model):
     class Statuses(models.TextChoices):
