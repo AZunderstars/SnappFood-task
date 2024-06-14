@@ -20,29 +20,32 @@ def get_new_delay_time_from_webservice():
         return timezone.localtime(timezone.now() + timezone.timedelta(minutes=15))
 
 
+def push_to_delay_queue():
+    con = get_redis_connection("default")
+    con.lpush('delay_queue', 1)
+
+
+def has_trip_on_the_way(order):
+    return hasattr(order, "trip") and order.trip.status != "DELIVERED"
+
+
 @csrf_exempt
 @require_POST
 def delay_report_announce(request):
     try:
         body = json.loads(request.body)
-        if "id" not in body:
-            return HttpResponse('bad parameters')
         order = Order.objects.get(id=body["id"])
         if order.is_now_late_for_delivery():
-            return HttpResponse('not late')
-        if hasattr(order, "trip") and order.trip.status != "DELIVERED":
+            return HttpResponse('not late', status=400)
+        if has_trip_on_the_way(order):
             new_delay_time = get_new_delay_time_from_webservice()
             DelayReport.objects.create(order=order, action="RESCHEDULED")
-            return HttpResponse(new_delay_time)
+            return HttpResponse({"new_delay_time": new_delay_time})
         else:
-            con = get_redis_connection("default")
-            con.lpush('delay_queue', 1)
+            push_to_delay_queue()
             DelayReport.objects.create(order=order, action="DELAY_QUEUED")
-            return HttpResponse('queued')
-
-    except json.decoder.JSONDecodeError:
-        pass
-    except Order.DoesNotExist:
+            
+    except (json.decoder.JSONDecodeError, Order.DoesNotExist, KeyError):
         pass
 
 
