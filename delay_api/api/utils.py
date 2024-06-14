@@ -4,23 +4,23 @@ from .models import *
 import requests
 import queue
 
-url = "https://run.mocky.io/v3/122c2796-5df4-461c-ab75-87c1192b17f7"
+new_arrive_time_service_url = "https://run.mocky.io/v3/122c2796-5df4-461c-ab75-87c1192b17f7"
 
 default_minute_latency_to_add = 15
 
 
 def get_new_arrive_time():
     try:
-        response = requests.get(url)
+        response = requests.get(new_arrive_time_service_url)
         return response.json().get("new_arrive_time")
 
     except (requests.exceptions.RequestException, requests.exceptions.JSONDecodeError):
         return timezone.localtime(timezone.now() + timezone.timedelta(minutes=default_minute_latency_to_add))
 
 
-def push_to_delay_queue(order):
+def push_to_delay_queue(value):
     con = get_redis_connection("default")
-    con.lpush('delay_queue', order.id)
+    con.lpush('delay_queue', value)
 
 
 def has_trip_on_the_way(order):
